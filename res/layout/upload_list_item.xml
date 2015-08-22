@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:gravity="left|center"
+	android:background="@drawable/metro_list_item_style"
+	android:layout_margin="10dp">
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:id="@+id/upload_tv_filename"
+		android:textColor="#FFFFFF"
+		android:layout_alignParentBottom="false"
+		android:layout_marginLeft="10dp"/>
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:textColor="#696969"
+		android:layout_marginLeft="10dp"
+		android:id="@+id/upload_tv_size"
+		android:layout_below="@id/upload_tv_filename"
+		android:layout_marginRight="10dp"/>
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/upload_tv_path"
+		android:layout_below="@id/upload_tv_size"
+		android:layout_marginLeft="10dp"/>
+
+</RelativeLayout>
+

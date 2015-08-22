@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/tpi_background"
+	android:gravity="center">
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:layout_marginLeft="10dp"
+		android:layout_marginRight="10dp"
+		android:text="@string/suggestionText"
+		android:padding="5dp"
+		android:textColor="#FFFFFF"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:background="#FFFFFF"
+		android:layout_margin="10dp"
+		android:padding="3dp">
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:inputType="textMultiLine"
+			android:ems="10"
+			android:layout_width="match_parent"
+			android:lines="10"
+			android:scrollbars="vertical"
+			android:gravity="top"
+			android:padding="3dp"
+			android:background="@drawable/tpi_background"
+			android:textColor="#FFFFFF"
+			android:textColorHint="#B3A29D"
+			android:hint="在此处输入内容"
+			android:id="@+id/suggestion_msg"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:background="#FFFFFF"
+		android:layout_margin="10dp"
+		android:padding="3dp">
+
+		<Button
+			android:layout_height="40dp"
+			android:text="提交"
+			android:layout_width="match_parent"
+			android:background="@drawable/metro_button"
+			android:textColor="#FFFFFF"
+			android:id="@+id/suggestion_submit"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

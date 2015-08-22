@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<EditText
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:layout_width="match_parent"
+		android:singleLine="true"
+		android:layout_margin="10dp"
+		android:hint="新文件名(可留空)"
+		android:id="@+id/dialog_tb_filename"/>
+
+	<EditText
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:layout_width="match_parent"
+		android:lines="5"
+		android:layout_margin="10dp"
+		android:singleLine="false"
+		android:gravity="top"
+		android:hint="在此处添加文件描述(可留空)"
+		android:id="@+id/dialog_tb_desc"/>
+
+	<CheckBox
+		android:checked="true"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_marginLeft="10dp"
+		android:text="允许别人下载"
+		android:id="@+id/dialog_cb_desc"/>
+
+</LinearLayout>
+

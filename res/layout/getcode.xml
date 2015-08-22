@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:background="@drawable/tpi_background">
+
+	<EditText
+		android:layout_height="wrap_content"
+		android:inputType="textPostalAddress"
+		android:ems="10"
+		android:layout_width="match_parent"
+		android:hint="输入我的磨主页地址"
+		android:layout_marginTop="10dp"
+		android:background="#FFFFFF"
+		android:padding="10dp"
+		android:id="@+id/code_url"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="center"
+		android:background="#f4b300"
+		android:layout_marginTop="10dp">
+
+		<RadioGroup
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:gravity="center">
+
+			<RadioButton
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="全局CSS"
+				android:checked="true"
+				android:background="#78BA00"
+				android:id="@+id/code_rb_css"/>
+
+			<RadioButton
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="底部JS"
+				android:background="#A440FF"
+				android:id="@+id/code_rb_js"/>
+
+			<RadioButton
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="HTML"
+				android:background="#2673EC"
+				android:id="@+id/code_rb_html"/>
+
+		</RadioGroup>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:background="#FFFFFF"
+		android:layout_marginTop="10dp"
+		android:padding="3dp">
+
+		<Button
+			android:layout_height="40dp"
+			android:text="获取代码"
+			android:layout_width="match_parent"
+			android:background="@drawable/metro_button"
+			android:textColor="#FFFFFF"
+			android:id="@+id/code_refresh"/>
+
+	</LinearLayout>
+
+	<ScrollView
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:layout_weight="1.0"
+		android:background="#FFFFFF"
+		android:layout_marginTop="10dp"
+		android:layout_marginBottom="10dp">
+
+		<EditText
+			android:layout_height="match_parent"
+			android:ems="10"
+			android:layout_width="match_parent"
+			android:singleLine="false"
+			android:gravity="top"
+			android:minLines="20"
+			android:id="@+id/code_tb_code"/>
+
+	</ScrollView>
+
+</LinearLayout>
+

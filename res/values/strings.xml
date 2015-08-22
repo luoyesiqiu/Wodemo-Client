@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, MainActivity!</string>
-    <string name="app_name">MyApp5</string>
-
+    <string name="app_name">我的磨助手</string>
+	<string name="suggestionText">如果你对这款软件有什么意见或者建议都可以在这里提出哦。你的建议将会作为留言留在作者的磨。</string>
 </resources>
