@@ -6,7 +6,6 @@ import android.graphics.*;
 
 public class AboutActivity extends Activity
 {
-Canvas c;
 	TextView tv_author,tv_wodemo,tv_help;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
