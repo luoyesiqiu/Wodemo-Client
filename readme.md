@@ -1,2 +1,2 @@
-A android client for wodemo.com
+A wodemo client for android
 Ver:1.1
