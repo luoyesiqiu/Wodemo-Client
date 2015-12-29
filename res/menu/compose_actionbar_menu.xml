@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- action items -->
+    <!-- showAsAction默认为never -->
+    <item
+        android:id="@+id/menu_compose_preview"
+        android:icon="@android:drawable/ic_media_play"
+        android:showAsAction="always"
+        android:title="预览"/>
+	<item
+        android:id="@+id/menu_compose_publish"
+		android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="always"
+        android:title="发布"/>
+	
+	
+	<item
+        android:id="@+id/menu_compose_help"
+        android:showAsAction="never"
+        android:title="帮助"/>
+	
+</menu>

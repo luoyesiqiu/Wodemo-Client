@@ -17,8 +17,11 @@ import org.jsoup.nodes.*;
 import java.util.regex.*;
 import org.jsoup.select.*;
 import org.json.*;
+import cn.bmob.v3.*;
+import android.telephony.*;
+import cn.bmob.v3.listener.*;
 
-public class MainActivity extends Activity implements OnTouchListener,Runnable
+public class MainAct extends Activity implements OnTouchListener
 {
 
 	//post数据，cookie
@@ -29,7 +32,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 	SharedPreferences sp;
 	LoginDialog ad;
 	DESCoder des;
-	LinearLayout linear_upload,linear_suggestion,linear_getHtml,linear_about,linear_login,linear_setting;
+	LinearLayout linear_upload,linear_compose,linear_getHtml,linear_about,linear_login,linear_setting,linear_browser;
 	TextView tv_status,tv_userName;
 	//存储站点名称的
 	String[] siteName =null;
@@ -39,29 +42,33 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 	String[] groupName =null;
 	//存储分组id的
 	String[] groupId=null;
+	JSONObject sitesObj;
+	public static String APP_UA="Mozilla/5.0 (Linux; U; Android 4.4.2; zh-cn; CHM-UL00 Build/HonorCHM-UL00) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 MQQBrowser/5.3 Mobile Safari/537.36";
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
 	{
-		//requestWindowFeature(1);
+		requestWindowFeature(1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
 		linear_login = (LinearLayout)findViewById(R.id.linear_login);
 		linear_upload = (LinearLayout)findViewById(R.id.linear_upload);
-		linear_suggestion = (LinearLayout)findViewById(R.id.linear_suggestion);
+		linear_compose = (LinearLayout)findViewById(R.id.linear_compose);
 		linear_getHtml = (LinearLayout)findViewById(R.id.linear_getHtml);
 		linear_about = (LinearLayout)findViewById(R.id.linear_about);
 		linear_setting = (LinearLayout)findViewById(R.id.linear_setting);
+		linear_browser = (LinearLayout)findViewById(R.id.linear_browser);
 		tv_status = (TextView)findViewById(R.id.tv_loginstatus);
-		tv_userName=(TextView)findViewById(R.id.tv_userName);
-		
+		tv_userName = (TextView)findViewById(R.id.tv_userName);
+
 		linear_upload.setOnTouchListener(this);
-		linear_suggestion.setOnTouchListener(this);
+		linear_compose.setOnTouchListener(this);
 		linear_getHtml.setOnTouchListener(this);
 		linear_about.setOnTouchListener(this);
 		linear_login.setOnTouchListener(this);
 		linear_setting.setOnTouchListener(this);
+		linear_browser.setOnTouchListener(this);
 		ad = new LoginDialog(this);
 		http = new Http();
 		ad.setLoginButton("登录", new DialogInterface.OnClickListener(){
@@ -80,7 +87,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 						cookies = new HashMap<String,String>();
 						cookies.put("lang", "zh");
 						showToast("正在登录……");
-						new Thread(MainActivity.this).start();
+						new Thread(loginRunnable).start();
 					}
 					else
 					{
@@ -94,7 +101,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 				public void onClick(DialogInterface p1, int p2)
 				{
 					// TODO: Implement this method
-					Dialog al=new AlertDialog.Builder(MainActivity.this)
+					Dialog al=new AlertDialog.Builder(MainAct.this)
 						.setTitle("提示")
 						.setMessage("确定要清除用户信息吗？")
 						.setPositiveButton("确定", new DialogInterface.OnClickListener(){
@@ -105,7 +112,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 								// TODO: Implement this method
 								ad.setUserName("").setPwd("");
 								sp.edit().clear().commit();
-								
+
 								tv_status.setText("未登录");
 								tv_userName.setText("");
 								showToast("账户信息已全部清除");
@@ -126,16 +133,38 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 		if (!sp.getString("user", "").equals("") && !sp.getString("cookie", "").equals(""))
 		{
 			tv_status.setText("已登录");
-			tv_userName.setText("("+sp.getString("curSiteName","")+")");
+			tv_userName.setText("(" + sp.getString("curSiteName", "") + ")");
 		}
-		new Thread(new Runnable(){
+		//沉浸状态栏
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		{
+			Window window = getWindow();
+			// 透明状态栏
+			window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+							WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		}
+		//此处可以写用户统计
+		//初始化Bmob
+		Bmob.initialize(this,JniBridge.getBmobKey());
+		final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+		MoUser user=new MoUser();
+		user.setName(sp.getString("user","游客"));
+		user.setId(tm.getDeviceId());
+		user.save(this, new SaveListener(){
 				@Override
-				public void run()
+				public void onSuccess()
 				{
 					// TODO: Implement this method
-					http.get(getWodemo(), "lang=zh;");
+					
 				}
-			}).start();
+
+				@Override
+				public void onFailure(int p1, String p2)
+				{
+					// TODO: Implement this method
+				}
+		});
     }
 
 	Handler handler=new Handler(){
@@ -159,15 +188,33 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 					sp.edit().putString("pwd", des.ebotongEncrypto(ad.getPwd())).commit();
 					sp.edit().putString("cookie", des.ebotongEncrypto(userCookie)).commit();
 					//存储站点信息
-					sp.edit().putString("siteInfo", getSiteInfoFromHtml(returnHtml)).commit();
+					String info=getSiteInfoFromHtml(returnHtml);
+					
+					String initGroupId = null;
+					String initGroupName = null;
+					String initSiteName = null;
+					String initSiteId = null;
+					try
+					{
+						JSONObject jo=new JSONObject(info);
+						initGroupId=new SitesInfo(jo).getFirstGroupId();
+						initGroupName=new SitesInfo(jo).getFirstGroupName();
+						initSiteId=new SitesInfo(jo).getFirstSiteId();
+						initSiteName=new SitesInfo(jo).getFirstSiteName();
+					}
+					catch (JSONException e)
+					{
+						//e.toString();
+					}
+					sp.edit().putString("siteInfo", info).commit();
 					sp.edit().putString("time", curTime).commit();
-					sp.edit().putString("curGroupName", "自动分类").commit();
-					sp.edit().putString("curGroup", "0").commit();
-					sp.edit().putString("curSiteName", ad.getUserName()).commit();
-					sp.edit().putString("curSite", "").commit();
+					sp.edit().putString("curGroupName", initGroupName).commit();
+					sp.edit().putString("curGroup", initGroupId).commit();
+					sp.edit().putString("curSiteName", regex(initSiteName,"\\(([\\w_]+)\\)",1)).commit();
+					sp.edit().putString("curSite", initSiteId).commit();
 					showToast("登录成功，用户信息已保存");
 					tv_status.setText("已登录");
-					tv_userName.setText("("+ad.getUserName()+")");
+					tv_userName.setText("(" + regex(initSiteName,"\\(([\\w_]+)\\)",1)+ ")");
 				}
 				else
 				{
@@ -179,32 +226,37 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 			}
 		}
 	};
-	public List<String> regex(String text, String pattern)
+	public String regex(String text, String pattern,int group)
 	{
-		ArrayList<String> result=new ArrayList<String>();
+		
 		Pattern p= Pattern.compile(pattern);
 		Matcher m= p.matcher(text);
-		while (m.find())
+		if (m.find())
 		{
-			result.add(m.group(1));
+			return m.group(1);
 		}
-		return result;
+		return "";
 	}
-
-	@Override
-	public void run()
+	
+	Runnable loginRunnable=new Runnable()
 	{
-
-		try
+		@Override
+		public void run()
 		{
-			String[] data=http.post(loginUrl, postdata, cookies);
-			returnHtml = data[1];
-			userCookie = data[2];
+			try
+			{
+				String[] data=http.post(loginUrl, postdata, cookies);
+				returnHtml = data[1];
+				userCookie = data[2];
+				System.out.println(data);
+			}
+			catch (Exception e)
+			{}
+			handler.sendEmptyMessage(0);
 		}
-		catch (Exception e)
-		{}
-		handler.sendEmptyMessage(0);
-	}
+
+	};
+	
 
 
 	@Override
@@ -224,45 +276,53 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 			{
 					//多上传文件
 				case R.id.linear_upload:
-					p1.setBackgroundColor(0x95FF7F24);
+					p1.setBackgroundColor(0xff00C13F);
 					intent = new Intent();
-					intent.setClass(MainActivity.this, UpLoadActivity.class);
+					intent.setClass(MainAct.this, UpLoadAct.class);
 					startActivity(intent);
 					break;
-					//意见反馈
-				case R.id.linear_suggestion:
+					//撰文
+				case R.id.linear_compose:
 					p1.setBackgroundColor(0xff3399ff);
 					intent = new Intent();
-					intent.setClass(MainActivity.this, SuggestionActivity.class);
+					intent.setClass(MainAct.this, ComposeAct.class);
 					startActivity(intent);
 					break;
 					//代码获取
 				case R.id.linear_getHtml:
 					p1.setBackgroundColor(0xffFF7F24);
 					intent = new Intent();
-					intent.setClass(MainActivity.this, GetCodeActivity.class);
+					intent.setClass(MainAct.this, GetCodeAct.class);
+					startActivity(intent);
+					break;
+					//浏览器
+				case R.id.linear_browser:
+					p1.setBackgroundColor(0xffFF76BC);
+					intent = new Intent();
+					intent.setClass(MainAct.this, BrowserAct.class);
 					startActivity(intent);
 					break;
 					//关于
 				case R.id.linear_about:
-					p1.setBackgroundColor(0x953399ff);
-					intent = new Intent();
-					intent.setClass(MainActivity.this, AboutActivity.class);
+					p1.setBackgroundColor(0xff3399ff);
+					intent = new Intent(MainAct.this, PreviewMdAct.class);
+					intent.putExtra("title", "帮助");
+					intent.putExtra("data", JniBridge.getHelp());
 					startActivity(intent);
 					break;
-					
-					
+
 					//登录
 				case R.id.linear_login:
 					p1.setBackgroundColor(0xff3399ff);
 					des = new DESCoder(sp.getString("time", ""));
-					
+
 					ad.show();
 					ad.setUserName(sp.getString("user", ""));
 					//密码解密
 					ad.setPwd(des.ebotongDecrypto(sp.getString("pwd", "")));
 					//showToast(des.ebotongDecrypto(sp.getString("pwd", "")));
 					break;
+					//设置
 				case R.id.linear_setting:
 					p1.setBackgroundColor(0xff3399ff);
 					LayoutInflater li=LayoutInflater.from(this);
@@ -284,6 +344,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 	{
 		String siteInfo="";
 		siteInfo = sp.getString("siteInfo", "");
+		
 		//设置默认站点
 		if (view.getId() == R.id.dialog_setting_defaultSite)
 		{
@@ -291,30 +352,17 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 			//showToast(siteInfo);
 			if (!siteInfo.equals(""))
 			{
-				//↓↓↓↓↓↓↓↓↓↓*********************************
 				try
 				{
-					JSONObject jo=new JSONObject(siteInfo);
-					JSONArray jaSites =jo.getJSONArray("sites");
-					//Map<String,String> map=new HashMap<String,String>();
-					siteName = new String[jaSites.length()];
-					siteId = new String[jaSites.length()];
-					for (int i=0;i < siteId.length;i++)
-					{
-						//map.put(jaSites.getJSONObject(i).getString("siteId"),
-						//jaSites.getJSONObject(i).getString("siteName"));
-						siteName[i] = jaSites.getJSONObject(i).getString("siteName");
-						siteId[i] = jaSites.getJSONObject(i).getString("siteId");
-					}
+					sitesObj=new JSONObject(siteInfo);
+					siteId = new SitesInfo(sitesObj).getAllSitesId();
+					siteName=new SitesInfo(sitesObj).getAllSitesName();
 				}
-				catch (Exception e)
-				{
-					//showToast(e.toString());
-				}
-				//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*****************************
+				catch (JSONException e)
+				{}
 				//查找存储的站点在总数据中的索引
 				//找不到就是默认站点的索引
-				int index=siteId.length-1;
+				int index=siteId.length - 1;
 				for (int i=0;i < siteId.length;i++)
 				{
 					if (siteId[i].equals(sp.getString("curSite", "")))
@@ -333,18 +381,18 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 							sp.edit().putString("curSite", siteId[which]).commit();
 							String siteAllName="";
 							//写入网站名
-							sp.edit().putString("curSiteName", (siteAllName=siteName[which]).substring(siteAllName.indexOf("(")+1,siteAllName.indexOf(")"))).commit();
+							sp.edit().putString("curSiteName", (siteAllName =regex( siteName[which],"\\(([\\w_]+)\\)",1))).commit();
 							//修改网站后，分组改成自动分类
-							sp.edit().putString("curGroup", "0").commit();
-							sp.edit().putString("curGroupName", "自动分类").commit();
-							tv_userName.setText("("+sp.getString("curSiteName","")+")");
-							//showToast("已设置，" + siteName[which] + " 为默认站点");
+							sp.edit().putString("curGroup",new SitesInfo(sitesObj).getAllGroupIdBySiteId(sp.getString("curSite",""))[0] ).commit();
+							sp.edit().putString("curGroupName",new SitesInfo(sitesObj).getAllGroupNameBySiteId(sp.getString("curSite",""))[0]).commit();
+							tv_userName.setText("(" + sp.getString("curSiteName", "") + ")");
+							
 							dialog.dismiss();
 						}
 					})
 					.setNegativeButton("取消", null).show();
 			}
-			else
+			else//siteInfo.equals("")
 			{
 				showToast("请先登录");
 			}
@@ -355,49 +403,18 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 
 			if (!siteInfo.equals(""))
 			{
-
-				//↓↓↓↓↓↓↓↓↓↓↓↓↓↓*********************************
 				try
 				{
-					//showToast("不为空");
-					JSONObject jo=new JSONObject(siteInfo);
-					//获取网站数组
-					JSONArray jaSites =jo.getJSONArray("sites");
-					//Map<String,String> map=new HashMap<String,String>();
-
-					int indexSite=0;
-					String tempCurSite=sp.getString("curSite", "");
-					//通过比较查找存储的站点的id
-					//，进而获取该站点在站点数组中的位置
-					//，进而获取该站点的信息
-					for (int i=0;i < jaSites.length();i++)
-					{
-						if (tempCurSite.equals(jaSites.getJSONObject(i).getString("siteId")))
-						{
-							indexSite = i;
-							break;
-						}
-					}
-					//获取该站点的所有分组
-					JSONArray jaGroups=jaSites.getJSONObject(indexSite).getJSONArray("siteGroups");
-					groupName = new String[jaGroups.length() + 1];
-					groupId = new String[jaGroups.length() + 1];
-					groupName[0] = "自动分类";
-					groupId[0] = "0";
-					for (int i=1;i < groupId.length;i++)
-					{
-						//map.put(jaSites.getJSONObject(i).getString("siteId"),
-						//jaSites.getJSONObject(i).getString("siteName"));
-						//注意-1
-						groupName[i] = jaGroups.getJSONObject(i - 1).getString("groupName");
-						groupId[i] = jaGroups.getJSONObject(i - 1).getString("groupId");
-					}
+					
+					sitesObj=new JSONObject(siteInfo);
+					groupId = new SitesInfo(sitesObj).getAllGroupIdBySiteId(sp.getString("curSite",""));
+					groupName=new SitesInfo(sitesObj).getAllGroupNameBySiteId(sp.getString("curSite",""));
+					
 				}
 				catch (Exception e)
 				{
 					showToast(e.toString());
 				}
-				//↑↑↑↑↑↑↑↑↑↑↑↑↑*****************************
 				//查找存储的分组在总数据中的索引
 				int index=0;
 				String tempCurGroup=sp.getString("curGroup", "");
@@ -418,7 +435,6 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 						{
 							sp.edit().putString("curGroup", groupId[which]).commit();
 							sp.edit().putString("curGroupName", groupName[which]).commit();
-							//showToast("已设置，" + siteName[which] + " 为默认站点");
 							dialog.dismiss();
 						}
 					})
@@ -426,7 +442,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 			}
 			else
 			{
-				showToast("请先登录");
+				showToast("请先登录");//siteInfo.equals("")
 			}
 		}
 	}
@@ -472,7 +488,8 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 		{}
 		return objMain.toString();
 	}
-	public Map<String,String> getSitesByHtml(String html)
+	
+	private Map<String,String> getSitesByHtml(String html)
 	{
 		//获取我的磨的站点的id和名称
 		Map<String,String> all=new HashMap<String,String>();
@@ -490,7 +507,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 		}
 		return all;
 	}
-	public Map<String,String> getGroupsBySiteId(String html, String siteId)
+	private Map<String,String> getGroupsBySiteId(String html, String siteId)
 	{
 		//获取我的磨的站点的分组id和名称
 		Map<String,String> all=new HashMap<String,String>();
@@ -524,7 +541,7 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 		if (System.currentTimeMillis() - cur > 2000)
 		{
 			cur = System.currentTimeMillis();
-			Toast.makeText(MainActivity.this, "再按一次返回键退出", 0).show();
+			Toast.makeText(MainAct.this, "再按一次返回键退出", 0).show();
 		}
 		else
 		{
@@ -532,9 +549,6 @@ public class MainActivity extends Activity implements OnTouchListener,Runnable
 			System.exit(0);
 		}
 	}
-	static {
-		System.loadLibrary("data");
-	}
-	private native String getWodemo();
+	
 
 }

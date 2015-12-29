@@ -41,14 +41,14 @@ import android.view.*;
 import org.jsoup.*;
 import android.app.*;
 
-public class UpLoadActivity extends Activity implements OnClickListener,Runnable,UploadStatus
+public class UpLoadAct extends Activity implements OnClickListener,Runnable,UploadStatus
 {
 	private DESCoder des;
 	SharedPreferences sp;
 	ListView list;
 	Bitmap bitmapItem=null;
 	ProgressDialog pa;
-	Button bn_add,bn_clear,bn_upload,upload_back;
+	Button bn_add,bn_clear,bn_upload;
 	List<Map<String, Object>> items ;
 	Map<String, Object> item;
 	SimpleAdapter adapter;
@@ -67,23 +67,22 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
     @Override
     public void onCreate(Bundle savedInstanceState)
 	{
+		//requestWindowFeature(1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload);
 //		overridePendingTransition(R.anim.out_to_right, R.anim.in_from_left);
 		bn_add = (Button)findViewById(R.id.bn_add2);
 		bn_clear = (Button)findViewById(R.id.bn_clear2);
 		bn_upload = (Button)findViewById(R.id.bn_upload);
-		upload_back = (Button)findViewById(R.id.upload_back);
 		list = (ListView)findViewById(R.id.list_upload_file);
 
 		bn_add.setOnClickListener(this);
 		bn_clear.setOnClickListener(this);
 		bn_upload.setOnClickListener(this);
-		upload_back.setOnClickListener(this);
 		IntentFilter intentFilter=new IntentFilter();
 		intentFilter.addAction(THIS_ACTION);
 		registerReceiver(br, intentFilter);
-		FileListActivity.curpath = Environment.getExternalStorageDirectory().getAbsolutePath();
+		FileListAct.curpath = Environment.getExternalStorageDirectory().getAbsolutePath();
 		uploadLog = new StringBuilder();
 		initAdapter();
 		sp = getSharedPreferences("mo-user", MODE_PRIVATE);
@@ -107,6 +106,16 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 		}
 		else{
 			showToast("当前站点："+sp.getString("curSiteName","")+"\n"+"当前分组："+sp.getString("curGroupName",""));
+		}
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		//沉浸状态栏
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		{
+			Window window = getWindow();
+			// 透明状态栏
+			window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+							WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 		}
     }
 	
@@ -202,7 +211,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 			if (msg.what == HANDLER_MSG_UPLOAD_OK_ALL)
 			{
 				pa.dismiss();
-				adlog = new AlertDialog.Builder(UpLoadActivity.this);
+				adlog = new AlertDialog.Builder(UpLoadAct.this);
 				adlog.setTitle("上传结果")
 					.setMessage(uploadLog.toString())
 					.setNegativeButton("确定", null)
@@ -214,7 +223,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 			else if (msg.what == HANDLER_MSG_UPLOAD_INIT_FAIL)
 			{
 				pa.dismiss();
-				adlog = new AlertDialog.Builder(UpLoadActivity.this);
+				adlog = new AlertDialog.Builder(UpLoadAct.this);
 				adlog.setTitle("上传未完成")
 					.setMessage("上传初始化数据失败，请重试")
 					.setNegativeButton("确定", null)
@@ -240,7 +249,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 		{
 
 			Intent intent=new Intent();
-			intent.setClass(UpLoadActivity.this, FileListActivity.class);
+			intent.setClass(UpLoadAct.this, FileListAct.class);
 			startActivity(intent);
 			//overridePendingTransition(R.anim.out_to_bottom, R.anim.in_from_bottom);
 		}
@@ -275,7 +284,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 					showToast("请先登录");
 					return;
 				}
-				pa = ProgressDialog.show(UpLoadActivity.this, null, "正在准备数据……");
+				pa = ProgressDialog.show(UpLoadAct.this, null, "正在准备数据……");
 				//让它不可返回
 				pa.setCancelable(false);
 				curIndex = 0;
@@ -289,8 +298,9 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 							{
 								des = new DESCoder(sp.getString("time", ""));
 
-								String returnHtml=http.get("http://s.wodemo.net/admin"
+								String returnHtml=http.get("http://s.wodemo.com/admin/site/upload"
 														   , des.ebotongDecrypto(userCookie));
+														  System.out.println(returnHtml);
 								//获取token
 								token = Jsoup.parse(returnHtml)
 									.select("[name=validatetoken]")
@@ -298,7 +308,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 									.attr("value");
 
 								handler.sendEmptyMessage(HANDLER_MSG_UPLOAD_OK);
-								new Thread(UpLoadActivity.this).start();
+								new Thread(UpLoadAct.this).start();
 							}
 							catch (Exception e)
 							{
@@ -307,20 +317,13 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 							}
 						}
 					}).start();
-
 			}
 			else if (items.size() == 0)
 			{
 				showToast("请先添加文件");
 			}
-
-
 		}
-		else if (p1.getId() == R.id.upload_back)
-		{
-			p1.setBackgroundColor(0xff3399ff);
-			finish();
-		}
+		
 	}
 
 	//上传文件
@@ -362,7 +365,7 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 		public void run()
 		{
 			// TODO: Implement this method
-			FileListActivity.getListFromPath(FileListActivity.curpath);
+			FileListAct.getListFromPath(FileListAct.curpath);
 		}
 
 	};
@@ -383,21 +386,21 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 			if (p2.getAction().equals(THIS_ACTION))
 			{
 				item = new HashMap<String, Object>();  
-				String newFileName=new File(FileListActivity.selectedFilePath).getName();
+				String newFileName=new File(FileListAct.selectedFilePath).getName();
 				//路径，不包括文件名
-				item.put("filePath", FileListActivity.curpath);
-				item.put("fileName", new File(FileListActivity.selectedFilePath).getName());  
+				item.put("filePath", FileListAct.curpath);
+				item.put("fileName", new File(FileListAct.selectedFilePath).getName());  
 				item.put("fileSize", 
-						 "(" + FileListActivity.formetFileSize(
-							 FileListActivity.getFileSizes(
-								 new File(FileListActivity.selectedFilePath))) 
+						 "(" + FileListAct.formetFileSize(
+							 FileListAct.getFileSizes(
+								 new File(FileListAct.selectedFilePath))) 
 						 + ")");
 				//完整路径，包括文件名
-				item.put("allPath", FileListActivity.selectedFilePath);
+				item.put("allPath", FileListAct.selectedFilePath);
 				item.put("desc", "");
 				item.put("public", "on");
 				//有后缀才获取短文件名
-				if (newFileName.indexOf("") != -1)
+				if (newFileName.indexOf(".")!=-1&&!newFileName.startsWith("."))
 					item.put("newFileName", newFileName.substring(0, newFileName.lastIndexOf(".")));
 				else
 					item.put("newFileName", newFileName);
@@ -412,15 +415,29 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 
 	public void showToast(String text)
 	{
-		Toast.makeText(UpLoadActivity.this, text, 2000).show();
+		Toast.makeText(UpLoadAct.this, text, 2000).show();
 	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+				/*
+				 * 将actionBar的HomeButtonEnabled设为ture，
+				 * 
+				 * 将会执行此case
+				 */
+			case android.R.id.home:
+				finish();
+				break;
 
+		}
+		return super.onOptionsItemSelected(item);
+	}
 	//初始化adapter
 	public void initAdapter()
 	{
 		items = new ArrayList<Map<String,Object>>(); 
 		//实例化一个适配器  
-		adapter = new SimpleAdapter(UpLoadActivity.this, items,
+		adapter = new SimpleAdapter(UpLoadAct.this, items,
 									R.layout.upload_list_item,
 									new String[]{ "fileName","fileSize","filePath"},
 									new int[]{ R.id.upload_tv_filename,R.id.upload_tv_size,R.id.upload_tv_path}
@@ -436,8 +453,8 @@ public class UpLoadActivity extends Activity implements OnClickListener,Runnable
 		// TODO: Implement this method
 		
 		//清空缓存数组
-		FileListActivity.dirs_cache = null;
-		FileListActivity.files_cache = null;
+		FileListAct.dirs_cache = null;
+		FileListAct.files_cache = null;
 		//开启线程载入列表
 		new Thread(loadFileList).start();
 		

@@ -8,10 +8,10 @@
 	android:background="@drawable/tpi_background"
 	android:orientation="vertical">
 
-	<ListView
-		android:layout_height="match_parent"
+	<com.luoye.wodemo.MdWebView
 		android:layout_width="match_parent"
-		android:id="@+id/file_list"/>
+		android:layout_height="match_parent"
+		android:id="@+id/previewmdWebView1"/>
 
 </LinearLayout>
 

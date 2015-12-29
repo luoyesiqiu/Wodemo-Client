@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
+	android:clipToPadding="true"
+	android:background="@drawable/tpi_background"
+	android:layout_width="match_parent">
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:layout_width="match_parent">
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:ems="10"
+			android:textCursorDrawable="@null"
+			android:layout_width="match_parent"
+			android:id="@+id/compose_title_tb"
+			android:gravity="top"
+			android:hint="标题"
+			android:singleLine="true"
+			android:textColor="#FFFFFF"/>
+
+		<ScrollView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="top|center"
+				android:orientation="horizontal">
+
+				<EditText
+					android:textCursorDrawable="@null"
+					android:layout_height="match_parent"
+					android:ems="10"
+					android:background="@null"
+					android:scrollbars="vertical"
+					android:layout_width="match_parent"
+					android:id="@+id/compose_main_tb"
+					android:gravity="top"
+					android:hint="内容(支持Markdown,HTML,纯文本)"
+					android:singleLine="false"
+					android:minLines="15"
+					android:textColor="#FFFFFF"
+					android:layout_margin="5dp"/>
+
+			</LinearLayout>
+
+		</ScrollView>
+
+	</LinearLayout>
+
+</ScrollView>
+

@@ -3,9 +3,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="match_parent"
 	android:layout_width="match_parent"
+	android:fitsSystemWindows="true"
+	android:clipToPadding="true"
 	android:background="@drawable/tpi_background">
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
@@ -15,6 +17,7 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:id="@+id/mainLinearLayout1"
 			android:orientation="horizontal"
 			android:layout_marginBottom="10dp"
 			android:layout_marginRight="20dp">
@@ -57,6 +60,8 @@
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:orientation="horizontal"
+			android:layout_below="@id/mainLinearLayout1"
+			android:id="@+id/mainLinearLayout2"
 			android:layout_marginBottom="20dp"
 			android:layout_marginRight="20dp">
 
@@ -76,7 +81,8 @@
 			<TextView
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:id="@+id/tv_userName"/>
+				android:id="@+id/tv_userName"
+				android:textColor="#FFFFFF"/>
 
 			<RelativeLayout
 				android:layout_width="match_parent"
@@ -104,9 +110,45 @@
 		</LinearLayout>
 
 		<LinearLayout
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:orientation="horizontal"
+			android:layout_below="@id/mainLinearLayout2"
+			android:id="@+id/mainLinearLayout3"
+			android:layout_marginBottom="20dp"
+			android:layout_marginRight="20dp">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<LinearLayout
+					android:id="@+id/linear_about"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:orientation="horizontal"
+					android:background="#3399ff"
+					android:layout_alignParentRight="true">
+
+					<ImageView
+						android:layout_width="36dp"
+						android:layout_height="36dp"
+						android:src="@drawable/about"
+						android:scaleX="0.8"
+						android:scaleY="0.8"/>
+
+				</LinearLayout>
+
+			</RelativeLayout>
+
+		</LinearLayout>
+
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:orientation="vertical"
+			android:layout_below="@id/mainLinearLayout2"
+			android:id="@+id/mainLinearLayout4"
 			android:layout_marginBottom="10dp">
 
 			<LinearLayout
@@ -117,7 +159,7 @@
 				<LinearLayout
 					android:layout_width="108dp"
 					android:layout_height="158dp"
-					android:background="#95FF7F24"
+					android:background="#00C13F"
 					android:clickable="true"
 					android:layout_margin="5dp"
 					android:gravity="center"
@@ -156,7 +198,7 @@
 						android:layout_width="wrap_content"
 						android:scaleX="0.8"
 						android:scaleY="0.8"
-						android:src="@drawable/html"/>
+						android:src="@drawable/getcode"/>
 
 					<TextView
 						android:layout_height="wrap_content"
@@ -184,18 +226,18 @@
 					android:layout_margin="5dp"
 					android:gravity="center"
 					android:orientation="vertical"
-					android:id="@+id/linear_suggestion">
+					android:id="@+id/linear_compose">
 
 					<ImageView
 						android:layout_height="wrap_content"
 						android:layout_width="wrap_content"
 						android:scaleX="0.8"
 						android:scaleY="0.8"
-						android:src="@drawable/post"/>
+						android:src="@drawable/compose"/>
 
 					<TextView
 						android:layout_height="wrap_content"
-						android:text="意见反馈"
+						android:text="撰文"
 						android:textAppearance="?android:attr/textAppearanceMedium"
 						android:layout_width="wrap_content"
 						android:layout_marginTop="10dp"
@@ -206,24 +248,24 @@
 				<LinearLayout
 					android:layout_width="108dp"
 					android:layout_height="158dp"
-					android:background="#953399ff"
+					android:background="#FF76BC"
 					android:clickable="true"
 					android:layout_margin="5dp"
 					android:layout_gravity="center"
 					android:gravity="center"
 					android:orientation="vertical"
-					android:id="@+id/linear_about">
+					android:id="@+id/linear_browser">
 
 					<ImageView
 						android:layout_height="wrap_content"
 						android:layout_width="wrap_content"
 						android:scaleX="0.8"
 						android:scaleY="0.8"
-						android:src="@drawable/about"/>
+						android:src="@drawable/browser"/>
 
 					<TextView
 						android:layout_height="wrap_content"
-						android:text="关于帮助"
+						android:text="浏览器"
 						android:textAppearance="?android:attr/textAppearanceMedium"
 						android:layout_width="wrap_content"
 						android:layout_marginTop="10dp"
@@ -235,7 +277,7 @@
 
 		</LinearLayout>
 
-	</LinearLayout>
+	</RelativeLayout>
 
 </ScrollView>
 

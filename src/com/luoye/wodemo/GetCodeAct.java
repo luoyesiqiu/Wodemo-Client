@@ -13,7 +13,7 @@ import android.view.*;
 import android.util.*;
 import org.jsoup.select.*;
 
-public class GetCodeActivity extends Activity implements OnClickListener
+public class GetCodeAct extends Activity implements OnClickListener
 {
 
 	RadioButton code_rb_html,code_rb_css,code_rb_js;
@@ -58,6 +58,16 @@ public class GetCodeActivity extends Activity implements OnClickListener
 		code_tb_code.setText(sp.getString("css", "没有任何内容"));
 		des = new DESCoder(sp_user.getString("time", ""));
 		http = new Http();
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		//沉浸状态栏
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		{
+			Window window = getWindow();
+			// 透明状态栏
+			window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+							WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		}
 	}
 
 	@Override
@@ -245,7 +255,21 @@ public class GetCodeActivity extends Activity implements OnClickListener
 	}
 	public void showToast(String text)
 	{
-		Toast.makeText(GetCodeActivity.this, text, 2000).show();
+		Toast.makeText(GetCodeAct.this, text, 2000).show();
 	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+				/*
+				 * 将actionBar的HomeButtonEnabled设为ture，
+				 * 
+				 * 将会执行此case
+				 */
+			case android.R.id.home:
+				finish();
+				break;
 
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

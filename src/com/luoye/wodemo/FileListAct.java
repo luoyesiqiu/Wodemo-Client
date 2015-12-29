@@ -12,7 +12,7 @@ import android.util.*;
 import android.content.*;
 import android.net.*;
 import java.text.*;
-public class FileListActivity extends Activity
+public class FileListAct extends Activity
 {
 
 	ListView list;
@@ -60,7 +60,7 @@ public class FileListActivity extends Activity
 				@Override
 				public void onCreateContextMenu(ContextMenu p1, View p2, ContextMenu.ContextMenuInfo p3)
 				{ 
-					if (((AdapterContextMenuInfo)p3).position > (dirs.size() ))
+					if (((AdapterContextMenuInfo)p3).position > (dirs.size()))
 						p1.add(0, 0, 0, "查看图片");
 				}
 			});
@@ -100,9 +100,9 @@ public class FileListActivity extends Activity
 						}
 
 					}
-					
+
 					//点击文件夹时,这里要注意数组的范围
-					else if ( (position == 0 && curpath.equals("/"))||(position <( dirs.size() +1)&& position > 0))
+					else if ((position == 0 && curpath.equals("/")) || (position < (dirs.size() + 1) && position > 0))
 					{
 						try
 						{
@@ -110,12 +110,14 @@ public class FileListActivity extends Activity
 							files_cache = files;
 
 							//对根目录的处理
-							if (curpath.equals("/")){
+							if (curpath.equals("/"))
+							{
 								curpath = "";
-							curpath = curpath + "/" + dirs.get(position).getName();
+								curpath = curpath + "/" + dirs.get(position).getName();
 							}
-							else{
-								curpath = curpath + "/" + dirs.get(position-1 ).getName();
+							else
+							{
+								curpath = curpath + "/" + dirs.get(position - 1).getName();
 							}
 							getListFromPath(curpath);
 							loadList();
@@ -130,15 +132,15 @@ public class FileListActivity extends Activity
 							showToast("抱歉，发生了错误！");
 						}
 					}
-					
+
 					//点击文件时
 					else if (position > (dirs.size() - 1))
 					{
 						//if ((curpath.charAt(curpath.length() - 1) == '/'))
 						//curpath = curpath.substring(0, curpath.length() - 1);
-						selectedFilePath =  curpath+"/"+ files.get(position - 1 - dirs.size()).getName();
+						selectedFilePath =  curpath + "/" + files.get(position - 1 - dirs.size()).getName();
 
-						showToast("文件："+files.get(position - 1 - dirs.size()).getName()+" 已添加到列表");
+						showToast("文件：" + files.get(position - 1 - dirs.size()).getName() + " 已添加到列表");
 						//结束
 						//FileListActivity.this.finish();
 						//发送广播
@@ -149,6 +151,17 @@ public class FileListActivity extends Activity
 
 				}
 			});
+		//显示返回按钮
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		//沉浸状态栏
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		{
+			Window window = getWindow();
+			// 透明状态栏
+			window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+							WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+		}
 	}
 //点击Context菜单的项时发生
 	@Override
@@ -164,7 +177,7 @@ public class FileListActivity extends Activity
 			Intent intent = new Intent("android.intent.action.VIEW");
 			intent.addCategory("android.intent.category.DEFAULT");
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			Uri uri = Uri.fromFile(new File(curpath + "/" + files.get(menuInfo.position - dirs.size()-1)));
+			Uri uri = Uri.fromFile(new File(curpath + "/" + files.get(menuInfo.position - dirs.size() - 1)));
 			intent.setDataAndType(uri, "image/*");
 			startActivity(intent);
 
@@ -295,7 +308,7 @@ public class FileListActivity extends Activity
 
 	public void showToast(String text)
 	{
-		Toast.makeText(FileListActivity.this, text, 2000).show();
+		Toast.makeText(FileListAct.this, text, 2000).show();
 	}
 
 	@Override
@@ -310,11 +323,15 @@ public class FileListActivity extends Activity
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		// TODO: Implement this method
-		if (item.getItemId() == 0)
+		switch (item.getItemId())
 		{
-			finish();
+			case 0:
+				finish();
+				break;
+			case android.R.id.home:
+				finish();
+				break;
 		}
-
 		return super.onOptionsItemSelected(item);
 
 	}
@@ -340,7 +357,7 @@ public class FileListActivity extends Activity
 		}
 		return s;
 	}
-
+	
 	public static  String formetFileSize(long fileS)
 	{
 		//转换文件大小
@@ -349,8 +366,8 @@ public class FileListActivity extends Activity
 		if (fileS < 1024)
 		{
 			fileSizeString = df.format((double) fileS) + "b";
-			if(fileS==0)
-				fileSizeString=fileS+".0b";
+			if (fileS == 0)
+				fileSizeString = fileS + ".0b";
 		}
 		else if (fileS < 1048576)
 		{

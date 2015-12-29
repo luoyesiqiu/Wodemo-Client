@@ -24,7 +24,7 @@ import java.nio.charset.*;
 public class Http 
 {
 //Socket s;
-	public String get(String url, String cookies)
+	public static String get(String url, String cookies)
 	{
 		String strResult="";
 		HttpGet hg = new HttpGet(url);
@@ -130,7 +130,7 @@ public class Http
 
 		for (Map.Entry<String,String> p:params.entrySet())
 		{
-			//builder.addPart();
+			
 			builder.addTextBody(p.getKey()
 								, p.getValue()
 								, ContentType.create(HTTP.PLAIN_TEXT_TYPE, HTTP.UTF_8));//设置请求参数
@@ -142,7 +142,6 @@ public class Http
 		{
 			HttpResponse response = client.execute(post);
 			result = EntityUtils.toString(response.getEntity(), "utf-8");
-			//result += "\n000000000000000000000000\n" + "\n00000000000000000000000\n";
 			post.abort();
 
 		}
@@ -156,6 +155,43 @@ public class Http
 			us.uploadComplete(false, result);
 		return result;
 	}
+	
+	public static synchronized String multipartDataPost(String url, Map<String,String> params, String cookies)
+	{
+		String result="";
+		HttpPost post = new HttpPost(url);//创建 HTTP POST 请求
+		post.setHeader("Cookie", cookies);
+		post.setHeader("User-Agent",MainAct.APP_UA);
+		HttpClient client=new DefaultHttpClient();// 开启一个客户端 HTTP 请求 
 
+		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);//设置浏览器兼容模式
+		builder.setCharset(Charset.defaultCharset());
+		builder.setBoundary("------WebKitFormBoundaryG839AeNbAyGi15UI");
+
+		for (Map.Entry<String,String> p:params.entrySet())
+		{
+
+			builder.addTextBody(p.getKey()
+								, p.getValue()
+								, ContentType.create(HTTP.PLAIN_TEXT_TYPE, HTTP.UTF_8));//设置请求参数
+		}
+
+		HttpEntity entity = builder.build();// 生成 HTTP POST 实体  	
+		post.setEntity(entity);//设置请求参数
+		try
+		{
+			HttpResponse response = client.execute(post);
+			result = EntityUtils.toString(response.getEntity(), "utf-8");
+			post.abort();
+
+		}
+		catch (Exception e)
+		{
+			result = e.toString();
+		}
+
+		return result;
+	}
 
 }
