@@ -15,7 +15,7 @@
 
 	<Button
 		android:layout_height="wrap_content"
-		android:text="设置默认上传分组"
+		android:text="设置默认分组"
 		android:layout_width="match_parent"
 		android:layout_margin="10dp"
 		android:onClick="onSettingClick"

@@ -428,7 +428,7 @@ public class MainAct extends Activity implements OnTouchListener
 
 				}
 				new AlertDialog.Builder(this)
-					.setTitle("设置上传默认分组")
+					.setTitle("设置默认分组")
 					.setSingleChoiceItems(groupName, index,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which)
