@@ -88,9 +88,14 @@ public final class R {
         public static final int mainLinearLayout2=0x7f080018;
         public static final int mainLinearLayout3=0x7f08001c;
         public static final int mainLinearLayout4=0x7f08001e;
-        public static final int menu_compose_help=0x7f08002f;
-        public static final int menu_compose_preview=0x7f08002d;
-        public static final int menu_compose_publish=0x7f08002e;
+        public static final int menu_browser_back=0x7f08002f;
+        public static final int menu_browser_forward=0x7f08002e;
+        public static final int menu_browser_html=0x7f080031;
+        public static final int menu_browser_refresh=0x7f08002d;
+        public static final int menu_browser_stop=0x7f080030;
+        public static final int menu_compose_help=0x7f080034;
+        public static final int menu_compose_preview=0x7f080032;
+        public static final int menu_compose_publish=0x7f080033;
         public static final int previewmdWebView1=0x7f080023;
         public static final int suggestion_msg=0x7f080024;
         public static final int suggestion_submit=0x7f080025;
@@ -118,7 +123,8 @@ public final class R {
         public static final int upload_list_item=0x7f03000c;
     }
     public static final class menu {
-        public static final int compose_actionbar_menu=0x7f070000;
+        public static final int browser_actionbar_menu=0x7f070000;
+        public static final int compose_actionbar_menu=0x7f070001;
     }
     public static final class string {
         public static final int app_name=0x7f050000;
